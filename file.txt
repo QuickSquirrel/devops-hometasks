@@ -2,3 +2,4 @@ Add string in master (commit 2)
 Add string 2 in dev (commit 1 in dev)
 Add string 3 in dev (commit 2 in dev)
 Add string 4 in features/dosmth (commit 1 in features/dosmth)
+Add string in hotfix/bugfix
