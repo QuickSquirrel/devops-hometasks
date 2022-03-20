@@ -1,0 +1,26 @@
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "debian/buster64"
+  config.vm.hostname = "TASK-01"
+  config.vm.network "forwarded_port", guest: 8080, host: 8080
+  config.vm.network "forwarded_port", guest: 8081, host: 8081
+
+ config.vm.provision "shell", inline: <<-SHELL
+   apt update
+   apt install -y apache2 php
+
+   mkdir /var/www/html/demosite-static /var/www/html/demosite-php
+   cp -f /vagrant/index.html /var/www/html/demosite-static/
+   cp -f /vagrant/index.php /var/www/html/demosite-php/
+   cp -f /vagrant/vh.conf /etc/apache2/sites-enabled/
+   echo "Listen 8080" >> /etc/apache2/ports.conf
+   echo "Listen 8081" >> /etc/apache2/ports.conf
+
+   systemctl restart apache2
+ SHELL
+
+ config.vm.provider "virtualbox" do |vb|
+   vb.memory = "1024"
+ end
+
+end
