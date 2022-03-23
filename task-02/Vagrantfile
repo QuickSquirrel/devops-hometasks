@@ -1,0 +1,58 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "debian/buster64"
+  config.vm.hostname = "TASK-02"
+  config.vm.network "forwarded_port", guest: 8080, host: 8080, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 8081, host: 8081, host_ip: "127.0.0.1"
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = "1024"
+    vb.name   = "lxc.vagrant.vm"
+  end
+
+  config.vm.provision "shell", inline: <<-SHELL
+    apt update
+    apt install -y lxc lxc-templates yum
+  
+    apt remove -y gnupg
+    apt install -y --reinstall gnupg2
+    apt install -y dirmngr
+
+    cp -f /vagrant/lxc-usernet /etc/lxc/
+    cp -f /vagrant/dnsmasq.conf /etc/lxc/
+    cp -f /vagrant/lxc-net /etc/default/
+
+    systemctl enable lxc-net
+    systemctl start lxc-net
+    systemctl start lxc
+
+    lxc-create -n c1-static -f /vagrant/lxc-cfg.conf -t centos
+    lxc-create -n c2-php -f /vagrant/lxc-cfg.conf -t centos
+    lxc-autostart
+    sleep 10s
+    
+    lxc-attach c1-static -- yum install -y httpd
+    lxc-attach c1-static -- systemctl enable httpd
+    lxc-attach c1-static -- systemctl start httpd
+    cp -f /vagrant/index.html /var/lib/lxc/c1-static/rootfs/var/www/html/
+    sleep 3s
+     
+
+    lxc-attach c2-php -- yum install -y httpd php
+    lxc-attach c2-php -- systemctl enable httpd
+    lxc-attach c2-php -- systemctl start httpd
+    cp -f /vagrant/index.php /var/lib/lxc/c2-php/rootfs/var/www/html/
+    sleep 3s
+
+
+    iptables -t nat -A PREROUTING -p tcp -i eth0 --dport 8080 -j DNAT --to-destination 10.0.3.10:80
+    iptables -t nat -A PREROUTING -p tcp -i eth0 --dport 8081 -j DNAT --to-destination 10.0.3.20:80
+
+    mkdir /etc/iptables-conf/
+    iptables-save > /etc/iptables-conf/ipbtl_save
+
+    echo -e '#!/bin/sh\n/sbin/iptables-restore < /etc/iptables-conf/ipbtl_save' > /etc/network/if-pre-up.d/iptables
+    chmod +x /etc/network/if-pre-up.d/iptables
+  
+  SHELL
+  
+end
