@@ -1,0 +1,42 @@
+---
+- name: CentOS configuration
+  hosts: all
+
+  tasks:
+
+    - name: сreate directorys
+      file:
+        path: "{{ item.dir }}"
+        state: directory
+      with_items:
+       - {dir: '/var/www/html/demosite-static'}
+       - {dir: '/var/www/html/demosite-php'}
+
+    - name: copy files
+      copy:
+        force: yes
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+      with_items:
+       - {src: '/vagrant/index.html', dest: '/var/www/html/demosite-static/index.html'}
+       - {src: '/vagrant/index.php', dest: '/var/www/html/demosite-php/index.php'}
+       - {src: '/vagrant/vh.conf', dest: '/etc/httpd/conf.d/vh.conf'}
+
+    - name: insert port 8080 in httpd.conf
+      lineinfile: 
+        dest: /etc/httpd/conf/httpd.conf
+        insertafter: "Listen 80" 
+        line: "Listen 8080"
+
+    - name: insert port 8081 in httpd.conf
+      lineinfile: 
+        dest: /etc/httpd/conf/httpd.conf
+        insertafter: "Listen 8080" 
+        line: "Listen 8081"
+
+
+    - name: Restart HTTPD
+      service:
+        name: httpd
+        state: restarted
+
