@@ -1,0 +1,52 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "debian/buster64"
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = 2024
+    vb.cpus   = 2
+  end
+
+
+  config.vm.define "jenkins.vm", primary: true do |jenkins|
+    jenkins.vm.hostname = "jenkins.vm"
+    jenkins.vm.network "private_network", ip: "192.168.50.10"
+    jenkins.vm.synced_folder ".", "/vagrant"
+    jenkins.vm.provision "shell", inline: <<-SHELL
+      apt update  
+      apt install -y gnupg2
+      apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367
+      echo "deb http://ppa.launchpad.net/ansible/ansible/ubuntu bionic main" >> /etc/apt/sources.list
+      apt update
+      apt install -y ansible
+    SHELL
+
+    jenkins.vm.provision "ansible_local" do |ansible|
+      ansible.playbook = "ply_jenkins.yaml"
+      ansible.galaxy_role_file = "inventory/requirements.yaml"
+      ansible.galaxy_roles_path = "/usr/share/ansible/collections"
+      ansible.galaxy_command = "sudo ansible-galaxy collection install -r%{role_file} -p%{roles_path} --force"
+
+      ansible.groups   = {
+        "jenkins" => ["jenkins.vm"],
+
+        "all:vars" => { "ansible_ssh_extra_args": "-o StrictHostKeyChecking=no",
+                        "ansible_connection": "ssh",
+                        "ansible_user": "vagrant",
+                        "ansible_password": "vagrant"}
+      }
+      ansible.host_vars = {
+        "jenkins.vm"    => { "ansible_host": "192.168.50.10" },
+      }
+      ansible.limit = "all"
+    end
+  end
+
+  config.vm.provision "shell", inline: <<-SHELL
+    sed -i "s/^PasswordAuthentication no\$/PasswordAuthentication yes/g" /etc/ssh/sshd_config
+    service sshd restart
+  SHELL
+  
+end

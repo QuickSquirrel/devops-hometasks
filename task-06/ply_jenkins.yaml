@@ -1,0 +1,122 @@
+---
+- name: Install Jenkins
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    jenkins_user: admin
+    jenkins_passw: admin
+    jenkins_url: http://localhost:8080
+  hosts: jenkins
+  become: true
+  tasks:
+    - name: Install key for repo
+      apt_key:
+        url: https://pkg.jenkins.io/debian/jenkins.io.key
+        state: present
+    
+    - name: Add repo to repofile
+      apt_repository:
+        repo: deb https://pkg.jenkins.io/debian-stable binary/
+        state: present
+        update_cache: yes
+ 
+    - name: Install packeges all other
+      apt:
+        pkg:
+        - git
+        - build-essential 
+        - openjdk-11-jdk
+        - mc
+        - python3-pip
+        state: present
+        update_cache: yes
+
+    - name: Install Jenkins
+      apt:
+        pkg:
+        - jenkins
+        state: present
+        
+    - name: Install Payton
+      pip:
+        name:
+          - python-jenkins
+          - lxml
+ 
+    - name: Stop Jenkins service
+      service:
+        name: jenkins
+        state: stopped
+
+    - name: Make dirs
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: jenkins
+        group: jenkins
+      with_items:
+        - /var/lib/jenkins/users/admin_8133878285141068281
+        - /var/lib/jenkins/jobs/gobuild
+ 
+    - name: Copy config files
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dst }}"
+        owner: jenkins
+        group: jenkins
+        force: yes
+      with_items:
+        - { src: "/vagrant/roles/jenkins/files/users/users.xml", dst: "/var/lib/jenkins/users/users.xml" }
+        - { src: "/vagrant/roles/jenkins/files/users/admin_8133878285141068281/config.xml", dst: "/var/lib/jenkins/users/admin_8133878285141068281/config.xml" }
+        - { src: "/vagrant/roles/jenkins/files/config.xml", dst: "/var/lib/jenkins/config.xml" }
+        - { src: "/vagrant/roles/jenkins/files/locale.xml", dst: "/var/lib/jenkins/locale.xml" }
+        - { src: "/vagrant/roles/jenkins/files/org.jenkinsci.plugins.golang.GolangBuildWrapper.xml", dst: "/var/lib/jenkins/" }
+        - { src: "/vagrant/roles/jenkins/files/jobs/gobuild/config.xml", dst: "/var/lib/jenkins/jobs/gobuild/config.xml" }
+  
+    - name: Disable start wizard
+      lineinfile:
+         path: "{{ item.path }}"
+         state: present
+         regexp: "{{ item.exp }}"
+         line: "{{ item.n_ln }}"
+      with_items:
+        - { path: "/lib/systemd/system/jenkins.service", exp: '^Environment="JAVA_OPTS=-Djava.awt.headless=true"', n_ln: 'Environment="JAVA_OPTS=-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"' }
+        - { path: "/etc/default/jenkins", exp: '^JAVA_ARGS="-Djava.awt.headless=true"', n_ln: 'JAVA_ARGS="-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"' }
+
+    - name: reload systemd
+      systemd:
+        daemon_reload: yes
+
+    - name: Start Jenkins service
+      service:
+        name: jenkins
+        state: started
+
+    - name: Install plugin
+      jenkins_plugin:
+        name: "{{ item }}"
+        url_username: "{{ jenkins_user }}"
+        url_password: "{{ jenkins_passw }}"
+        url: "{{ jenkins_url }}"
+        with_dependencies: yes
+      with_items:
+        - locale
+        - git
+        - github
+        - golang
+        - Pipeline
+        - nexus-artifact-uploader
+        - timestamper
+
+    - name: Restart Jenkins service
+      service:
+        name: jenkins
+        state: restarted
+
+    - name: Create build
+      community.general.jenkins_build:
+        name: "gobuild"
+        build_number: 1
+        state: present
+        user: "{{ jenkins_user }}"
+        password: "{{ jenkins_passw }}"
+        url: "{{ jenkins_url }}"
