@@ -24,7 +24,7 @@ Vagrant.configure("2") do |config|
     SHELL
 
     jenkins.vm.provision "ansible_local" do |ansible|
-      ansible.playbook = "ply_jenkins.yaml"
+      ansible.playbook = "ply_role_jenkins.yaml"
       ansible.galaxy_role_file = "inventory/requirements.yaml"
       ansible.galaxy_roles_path = "/usr/share/ansible/collections"
       ansible.galaxy_command = "sudo ansible-galaxy collection install -r%{role_file} -p%{roles_path} --force"
