@@ -106,6 +106,7 @@
         - Pipeline
         - nexus-artifact-uploader
         - timestamper
+      ignore_errors: yes
 
     - name: Restart Jenkins service
       service:
