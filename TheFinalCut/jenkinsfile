@@ -44,7 +44,7 @@ pipeline {
                     artifactId: 'word-cloud-generator', 
                     classifier: '', file: 'artifacts/word-cloud-generator.gz', 
                     type: 'gz']], 
-                  credentialsId: 'uploader', 
+                  credentialsId: 'nexus-uploader', 
                   groupId: "$git_branch", 
                   nexusUrl: 'localhost:8081', 
                   nexusVersion: 'nexus3', 
@@ -64,7 +64,7 @@ pipeline {
             steps {
                 withCredentials([
                     usernamePassword(
-                        credentialsId: 'downloader', 
+                        credentialsId: 'nexus_downloader', 
                         usernameVariable: 'nexus_user', 
                         passwordVariable: 'nexus_password'
                     )])
