@@ -41,7 +41,7 @@ pipeline {
                         type: 'gz']], 
                     credentialsId: 'uploader', 
                     groupId: "${GIT_BRANCH}", 
-                    nexusUrl: '192.168.50.20:8081', 
+                    nexusUrl: 'nexus:8081', 
                     nexusVersion: 'nexus3', 
                     protocol: 'http', 
                     repository: 'word-cloud-build', 
@@ -53,7 +53,7 @@ pipeline {
             steps {
                 sh '''
                 sshpass -p 'vagrant' ssh vagrant@192.168.50.40 -o StrictHostKeyChecking=no "cd /opt/wordcloud/
-                sudo curl -u downloader:downloader -X GET "http://192.168.50.20:8081/repository/word-cloud-build/${GIT_BRANCH}/word-cloud-generator/1.$BUILD_NUMBER/word-cloud-generator-1.$BUILD_NUMBER.gz" -o /opt/wordcloud/word-cloud-generator.gz
+                sudo curl -u downloader:downloader -X GET "http://nexus:8081/repository/word-cloud-build/${GIT_BRANCH}/word-cloud-generator/1.$BUILD_NUMBER/word-cloud-generator-1.$BUILD_NUMBER.gz" -o /opt/wordcloud/word-cloud-generator.gz
                 if [[ $? -ne 0 ]];
                   then
                     echo "File not found"
