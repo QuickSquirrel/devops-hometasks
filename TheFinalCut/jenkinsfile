@@ -18,7 +18,7 @@ pipeline {
             }
             steps {
                 sh '''
-                cd GoPipeline
+                cd /var/lib/jenkins/workspace/GoPipeline
                 make lint && make test
                  if [ $? -ne 0 ];
                     then
