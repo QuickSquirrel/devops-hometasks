@@ -42,7 +42,7 @@ pipeline {
                 nexusArtifactUploader ( 
                   artifacts: [[
                     artifactId: 'word-cloud-generator', 
-                    classifier: '', file: 'artifacts/word-cloud-generator.gz', 
+                    classifier: '', file: '../GoPipeline/artifacts/word-cloud-generator.gz', 
                     type: 'gz']], 
                   credentialsId: 'nexus-uploader', 
                   groupId: "$git_branch", 
