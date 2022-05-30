@@ -12,7 +12,7 @@ pipeline {
         stage ('Built WCG') {
             agent {
                 dockerfile { 
-                    filename 'TheFinalCut/Dockerfile.GoLang' 
+                    filename 'TheFinalCut/Dockerfile.GOLang' 
                     args '--network host'
                }
             }
