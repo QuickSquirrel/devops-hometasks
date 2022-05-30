@@ -21,7 +21,7 @@ variable "docker_ports" {
   ]
 }
 
-variable "token" {}
+variable "token" {} # token define as system env TF_VAR_token="***token***"
 
 variable "path" {
   default = "/vagrant/t11"
