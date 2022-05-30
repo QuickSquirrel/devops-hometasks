@@ -49,23 +49,5 @@ pipeline {
                 )
             }
         }   
-        stage ("Test and install on stading") {
-            steps {
-                sh '''
-                sshpass -p 'vagrant' ssh vagrant@192.168.50.40 -o StrictHostKeyChecking=no "cd /opt/wordcloud/
-                sudo curl -u downloader:downloader -X GET "http://nexus:8081/repository/word-cloud-build/${GIT_BRANCH}/word-cloud-generator/1.$BUILD_NUMBER/word-cloud-generator-1.$BUILD_NUMBER.gz" -o /opt/wordcloud/word-cloud-generator.gz
-                if [[ $? -ne 0 ]];
-                  then
-                    echo "File not found"
-                    exit 1
-                  else
-                    sudo service wordcloud stop
-                    sudo gunzip -f /opt/wordcloud/word-cloud-generator.gz
-                    sudo chmod +x /opt/wordcloud/word-cloud-generator
-                    sudo service wordcloud start
-                fi"
-                '''
-            }
-        }
     }
 }
