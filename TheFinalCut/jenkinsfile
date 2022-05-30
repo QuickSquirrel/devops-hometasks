@@ -5,6 +5,13 @@ pipeline {
     }
 
     stages {
+        stage ("Download source from git"){
+            steps{
+                git 'https://github.com/Fenikks/word-cloud-generator.git'
+            }
+        }
+    }
+    stages {
         stage ('Built WCG') {
             agent {
                 dockerfile { 
