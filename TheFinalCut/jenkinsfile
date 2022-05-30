@@ -12,7 +12,7 @@ pipeline {
         stage ('Built WCG') {
             agent {
                 dockerfile { 
-                    filename 'Dockerfile.GoLang' 
+                    filename 'TheFinalCut/Dockerfile.GoLang' 
                     args '--network host'
                }
             }
@@ -56,7 +56,7 @@ pipeline {
         stage('Testing') {
             agent {
                 dockerfile { 
-                    filename 'Dockerfile.Alpine' 
+                    filename 'TheFinalCut/Dockerfile.Alpine' 
                     args '--network host'
                }
             }
