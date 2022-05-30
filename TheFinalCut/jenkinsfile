@@ -13,8 +13,7 @@ pipeline {
             agent {
                 dockerfile { 
                     filename 'TheFinalCut/Dockerfile.GOlang' 
-                    args '--network host'
-                    args '-w /var/lib/jenkins/workspace/GoPipeline'
+                    args '--network host -w /var/lib/jenkins/workspace/GoPipeline'
                }
             }
             steps {
