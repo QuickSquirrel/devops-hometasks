@@ -5,7 +5,7 @@ pipeline {
     }
 
     stages {
-        stage ('Test') {
+        stage ('Built WCG') {
             agent {
                 dockerfile { 
                     filename 'Dockerfile.GoLang' 
