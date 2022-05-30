@@ -18,6 +18,7 @@ pipeline {
             }
             steps {
                 sh '''
+                cd GoPipeline
                 make lint && make test
                  if [ $? -ne 0 ];
                     then
