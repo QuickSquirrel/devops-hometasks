@@ -1,0 +1,31 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "generic/debian10"
+  config.vm.synced_folder  ".", "/vagrant", disabled: false
+  config.vm.network "private_network", ip: "192.168.33.66"
+  #onfig.vm.network "forwarded_port", guest: 8080, host: 8080
+  #config.vm.network "forwarded_port", guest: 8081, host: 8081
+  #config.vm.network "forwarded_port", guest: 8888, host: 8888
+
+
+  config.vm.provider "virtualbox" do |vb|
+    # Customize the amount of memory on the VM:
+    vb.memory = 3072
+    vb.cpus   = 2
+  end
+  config.vm.provision "shell", inline: <<-SHELL
+    apt-get update
+    #install docker-compose
+    apt-get install -y docker.io docker-compose
+    usermod -aG docker vagrant
+    # make some fitches in env
+    sed -i "s/^#force_color_prompt=yes\$/force_color_prompt=yes/g" /home/vagrant/.bashrc
+    sed -i "s/^#alias ll='ls -l'\$/alias ll='ls -lsa'/g" /home/vagrant/.bashrc
+    # start build docker-compose project
+    cd /vagrant
+    sudo docker-compose up --build
+  SHELL
+end
