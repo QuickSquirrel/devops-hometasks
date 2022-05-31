@@ -35,18 +35,6 @@
         repo: deb https://pkg.jenkins.io/debian-stable binary/
         state: present
         update_cache: yes
- 
-#    - name: Make dir for jenkins service reconfigeration 
-#      file:
-#        path: /lib/systemd/system/jenkins.service.d
-#        state: directory
-
-#    - name: Create file for jenkins service
-#      copy:
-#        dest: /lib/systemd/system/jenkins.service.d/st-timeout.conf
-#        content: |
-#          [Service]
-#          TimeoutStartSec=180
 
     - name: Install Jenkins
       apt:
@@ -55,20 +43,6 @@
         state: present
       ignore_errors: yes
  
-# python3.7 -m pip install jmespath
-
-
-#not work in docker
-
-#    - name: Stop Jenkins service
-#      service:
-#        name: jenkins
-#        state: stopped
-
-#    - name: reload systemd
-#      systemd:
-#        daemon_reload: yes
-
     - name: Make dirs
       file:
         path: "{{ item }}"
@@ -102,39 +76,13 @@
          regexp: "{{ item.exp }}"
          line: "{{ item.n_ln }}"
       with_items:
-#        - { path: "/lib/systemd/system/jenkins.service", exp: '^Environment="JAVA_OPTS=-Djava.awt.headless=true"', n_ln: 'Environment="JAVA_OPTS=-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false -Dhudson.security.csrf.GlobalCrumbIssuerConfiguration=false"' }
-#        - { path: "/lib/systemd/system/jenkins.service", exp: '^Environment="JAVA_OPTS=-Djava.awt.headless=true"', n_ln: 'Environment="JAVA_OPTS=-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false -Dhudson.security.csrf.DefaultCrumbIssuer.EXCLUDE_SESSION_ID=true"' }
         - { path: "/etc/default/jenkins", exp: '^JAVA_ARGS="-Djava.awt.headless=true"', n_ln: 'JAVA_ARGS="-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false -Dhudson.security.csrf.DefaultCrumbIssuer.EXCLUDE_SESSION_ID=true"' }
-
-#    - name: reload systemd
-#      systemd:
-#        daemon_reload: yes
-
-# not work in docker
-#    - name: Start Jenkins service
-#      service:
-#        name: jenkins
-#        state: started
 
     - name: Start jenkins
       sysvinit: 
         name: jenkins
         state: started
         enabled: yes
-
-
-#    - name: Wait for Jenkins to start up
-#      uri:
-#        url: http://localhost:8080
-#        status_code: 200
-#        timeout: 5
-#     register: jenkins_service_status
-#     # Keep trying for 5 mins in 5 sec intervals
-#     retries: 60
-#     delay: 5
-#     until: >
-#       'status' in jenkins_service_status and
-#       jenkins_service_status['status'] == 200
 
     - name: Sleep for 180 seconds and continue with play
       wait_for:
@@ -172,22 +120,7 @@
         - pipeline-stage-step
         - docker-workflow
         - docker-plugin
-#      ignore_errors: yes
       register: plugin_result
       until: plugin_result is success
       retries: 5   # repeat 5-th times
       delay: 5     # delay 5 sec betwin retries
-      
-#    - name: Restart Jenkins service
-#      service:
-#        name: jenkins
-#        state: restarted
-
-#    - name: Create build
-#      community.general.jenkins_build:
-#        name: "gobuild"
-#        build_number: 1
-#        state: present
-#        user: "{{ jenkins_user }}"
-#        password: "{{ jenkins_passw }}"
-#        url: "{{ jenkins_url }}"
