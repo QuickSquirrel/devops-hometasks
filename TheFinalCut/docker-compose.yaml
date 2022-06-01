@@ -18,8 +18,8 @@ services:
     container_name: jenkins
     volumes:
     - /var/run/docker.sock:/var/run/docker.sock
-    - jenkins_vol:/var/lib/jenkins/workspace/
+    - ws:/var/lib/jenkins/workspace/
     network_mode: host
 
 volumes:
-  jenkins_vol:
+  ws:

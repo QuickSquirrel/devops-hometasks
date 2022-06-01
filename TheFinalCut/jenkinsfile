@@ -6,7 +6,7 @@ pipeline {
     stages {
         stage ("Download source from git"){
             steps{
-                dir('/var/lib/jenkins/workspace/wcg') {
+                dir('../wcg') {
                 git url: 'https://github.com/Fenikks/word-cloud-generator'
                 }
             }
@@ -87,7 +87,7 @@ pipeline {
                        if [[ "1" != "$res" ]]; then 
                           exit 98
                        fi
-                       res=`curl -s -H "Content-Type: application/json" -d '{"text":"ths is a really really really important thing this is"}' http://localhost:8888/api | jq '. | length'`
+                       res=`curl -s -H "Content-Type: application/json" -d '{"text":"Through the fish eyed lens of tear stained eyes"}' http://localhost:8888/api | jq '. | length'`
                        if [[ "7" != "$res" ]]; then
                           exit 99
                        fi
