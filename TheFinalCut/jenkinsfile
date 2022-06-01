@@ -4,13 +4,6 @@ pipeline {
         timestamps()
     }
     stages {
-        stage ("Download source from git"){
-            steps{
-                dir('../wcg') {
-                git url: 'https://github.com/Fenikks/word-cloud-generator'
-                }
-            }
-        }
         stage ('Built WCG') {
             agent {
                 dockerfile { 
@@ -19,8 +12,8 @@ pipeline {
                }
             }
             steps {
+                git url: 'https://github.com/Fenikks/word-cloud-generator'
                 sh '''
-                cd ../wcg
                 make lint && make test
                  if [ $? -ne 0 ];
                     then
@@ -45,7 +38,7 @@ pipeline {
                 nexusArtifactUploader ( 
                   artifacts: [[
                     artifactId: 'word-cloud-generator', 
-                    classifier: '', file: '../wcg/artifacts/word-cloud-generator.gz', 
+                    classifier: '', file: 'artifacts/word-cloud-generator.gz', 
                     type: 'gz']], 
                   credentialsId: 'nexus-uploader', 
                   groupId: "$git_branch", 
