@@ -8,7 +8,7 @@ pipeline {
             agent {
                 dockerfile { 
                     filename 'TheFinalCut/Dockerfile.GOlang' 
-                    args '--network host -w /var/lib/jenkins/workspace/wcg'
+                    args '--network host'
                }
             }
             steps {
@@ -76,11 +76,11 @@ pipeline {
                        chmod +x /opt/wordcloud/word-cloud-generator
                        /opt/wordcloud/word-cloud-generator &
                        sleep 5
-                       res=`curl -s -H "Content-Type: application/json" -d '{"text":"ths is a really really really important thing this is"}' http://localhost:8888/version | jq '. | length'`
+                       res=`curl -s -H "Content-Type: application/json" -d '{"text":"Through the fish eyed lens of tear stained eyes"}' http://localhost:8888/version | jq '. | length'`
                        if [[ "1" != "$res" ]]; then 
                           exit 98
                        fi
-                       res=`curl -s -H "Content-Type: application/json" -d '{"text":"Through the fish eyed lens of tear stained eyes"}' http://localhost:8888/api | jq '. | length'`
+                       res=`curl -s -H "Content-Type: application/json" -d '{"text":"ths is a really really really important thing this is"}' http://localhost:8888/api | jq '. | length'`
                        if [[ "7" != "$res" ]]; then
                           exit 99
                        fi
