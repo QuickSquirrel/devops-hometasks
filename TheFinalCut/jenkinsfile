@@ -6,7 +6,7 @@ pipeline {
     stages {
         stage ("Download source from git"){
             steps{
-                git 'https://github.com/Fenikks/word-cloud-generator.git'
+                git url: 'https://github.com/Fenikks/word-cloud-generator'
             }
         }
         stage ('Built WCG') {
@@ -54,7 +54,7 @@ pipeline {
                 )
             }
         }
-        stage('Upload for testing') {
+        stage('Upload for test and tests') {
             agent {
                 dockerfile { 
                     filename 'TheFinalCut/Dockerfile.Alpine' 
@@ -79,40 +79,19 @@ pipeline {
                        gunzip -f /opt/wordcloud/word-cloud-generator.gz
                        chmod +x /opt/wordcloud/word-cloud-generator
                        /opt/wordcloud/word-cloud-generator &
+                       sleep 5
+                       res=`curl -s -H "Content-Type: application/json" -d '{"text":"ths is a really really really important thing this is"}' http://localhost:8888/version | jq '. | length'`
+                       if [[ "1" != "$res" ]]; then 
+                          exit 98
+                       fi
+                       res=`curl -s -H "Content-Type: application/json" -d '{"text":"ths is a really really really important thing this is"}' http://localhost:8888/api | jq '. | length'`
+                       if [[ "7" != "$res" ]]; then
+                          exit 99
+                       fi
                        sleep 90
                    fi
                   '''
                 }
-            }
-        }
-        stage('Parallel testing') {
-            steps {
-                parallel (
-                    "FirstTestLine" : {
-                        sh  '''
-                         res=`curl -s -H "Content-Type: application/json" -d '{"text":"ths is a really really really important thing this is"}' http://localhost:8888/version | jq '. | length'`
-                         if [[ "1" != "$res" ]]; then 
-                            exit 98
-                         fi
-                         res=`curl -s -H "Content-Type: application/json" -d '{"text":"ths is a really really really important thing this is"}' http://localhost:8888/api | jq '. | length'`
-                         if [[ "7" != "$res" ]]; then
-                            exit 99
-                         fi
-                         '''
-                    },
-                    "SecondTestLine" : {
-                       sh  '''
-                         res=`curl -s -H "Content-Type: application/json" -d '{"text":"ths is a really really really important thing this is"}' http://localhost:8888/version | jq '. | length'`
-                         if [[ "1" != "$res" ]]; then 
-                            exit 98
-                         fi
-                         res=`curl -s -H "Content-Type: application/json" -d '{"text":"ths is a really really really important thing this is"}' http://localhost:8888/api | jq '. | length'`
-                         if [[ "7" != "$res" ]]; then
-                            exit 99
-                         fi
-                         '''
-                    }
-                )
             }
         }
     }   
