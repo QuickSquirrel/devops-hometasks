@@ -7,7 +7,7 @@ pipeline {
         stage ("Download source from git"){
             steps{
                 dir('/var/lib/jenkins/workspace/wcg') {
-                git url: 'https://github.com/Fenikks/word-cloud-generators'
+                git url: 'https://github.com/Fenikks/word-cloud-generator'
                 }
             }
         }
