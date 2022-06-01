@@ -54,7 +54,7 @@ pipeline {
                 )
             }
         }
-        stage('Testing') {
+        stage('Upload for testing') {
             agent {
                 dockerfile { 
                     filename 'TheFinalCut/Dockerfile.Alpine' 
@@ -84,8 +84,8 @@ pipeline {
                   '''
                 }
             }
-
-        stage('Parallel Test staging') {
+        }
+        stage('Parallel testing') {
             steps {
                 parallel (
                     "FirstTestLine" : {
@@ -115,5 +115,5 @@ pipeline {
                 )
             }
         }
-    }
+    }   
 }
