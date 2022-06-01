@@ -37,6 +37,7 @@ pipeline {
                 sed -i "s/1.DEVELOPMENT/1.$BUILD_NUMBER/g" static/version
                 GOOS=linux GOARCH=amd64 go build -o ./artifacts/word-cloud-generator -v 
                 md5sum artifacts/word-cloud-generator
+                pwd
                 ls -l artifacts/
                 gzip -f ./artifacts/word-cloud-generator
                 cat static/version
@@ -44,7 +45,7 @@ pipeline {
                 nexusArtifactUploader ( 
                   artifacts: [[
                     artifactId: 'word-cloud-generator', 
-                    classifier: '', file: '../GoPipeline/artifacts/word-cloud-generator.gz', 
+                    classifier: '', file: '../wcg/artifacts/word-cloud-generator.gz', 
                     type: 'gz']], 
                   credentialsId: 'nexus-uploader', 
                   groupId: "$git_branch", 
