@@ -6,19 +6,21 @@ pipeline {
     stages {
         stage ("Download source from git"){
             steps{
-                git url: 'https://github.com/Fenikks/word-cloud-generator'
+                dir('/var/lib/jenkins/workspace/wcg') {
+                git url: 'https://github.com/Fenikks/word-cloud-generators'
+                }
             }
         }
         stage ('Built WCG') {
             agent {
                 dockerfile { 
                     filename 'TheFinalCut/Dockerfile.GOlang' 
-                    args '--network host -w /var/lib/jenkins/workspace/GoPipeline'
+                    args '--network host -w /var/lib/jenkins/workspace/wcg'
                }
             }
             steps {
                 sh '''
-                cd /var/lib/jenkins/workspace/GoPipeline
+                cd ../wcg
                 make lint && make test
                  if [ $? -ne 0 ];
                     then
